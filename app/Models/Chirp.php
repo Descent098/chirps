@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Chirp extends Model
 {
     use HasFactory;
+
+    // Allows mass assignment for message field (SEE: https://bootcamp.laravel.com/blade/creating-chirps#mass-assignment-protection)
+    protected $fillable = [
+        'message',
+    ];
 }
