@@ -2,7 +2,7 @@
 
 This is my personal repo for working on the [laravel bootcamp](https://bootcamp.laravel.com/introduction) (specifically the [blade version](https://bootcamp.laravel.com/blade/installation)).
 
-![](./resources/img/example.gif)
+![](./public/img/example.gif)
 
 ## Running
 
