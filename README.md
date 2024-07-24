@@ -2,7 +2,13 @@
 
 This is my personal repo for working on the [laravel bootcamp](https://bootcamp.laravel.com/introduction) (specifically the [blade version](https://bootcamp.laravel.com/blade/installation)).
 
-![](./example.gif)
+![](./resources/img/example.gif)
+
+## Running
+
+You can run the docker file with just `docker compose up`
+
+or you can install [Laravel Sail](https://laravel.com/docs/11.x/sail) and run using that
 
 ## Architecture overview
 
