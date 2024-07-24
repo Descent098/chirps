@@ -18,6 +18,7 @@ class ChirpController extends Controller
         return view('chirps.index', [
             'chirps' => 
                 Chirp::with('user') // In the context of the current user
+                ->limit(50)
                 ->latest()          // With the latest chirps in the relationship
                 ->get(),            // Collect entries
         ]);
