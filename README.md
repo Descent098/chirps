@@ -1,66 +1,59 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Chirps
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This is my personal repo for working on the [laravel bootcamp](https://bootcamp.laravel.com/introduction) (specifically the [blade version](https://bootcamp.laravel.com/blade/installation)).
 
-## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Architecture overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Routing is handled by `/routes/web.php`, which in this setup allows for each model to have it's own Controller (in `app/Http/Controllers/<model>Controller.php`). 
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The Controllers implement the standard CRUD operations, and when the routers call the methods the controller can then decide (based on return type) to:
 
-## Learning Laravel
+- Respond natively with a `Illuminate\Http\Response` type
+- Respond by passing off to a view with a `Illuminate\View\View` type
+- Respond via a redirect to a view or URL with a `Illuminate\Http\RedirectResponse` type
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+From there we can gate certain actions behind policies found in `/app/Policies/<model>Policy.php`. This can then be added to the Controller routes using `Illuminate\Support\Facades\Gate`. For example:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```php
+Gate::authorize('update', $modelInstance);
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Will then go to `<model>Policy.php`, check the `update()` method in the class to see if the user has access, and then only continue if they do.
 
-## Laravel Sponsors
+If a view is being used then that view can be found at `/resources/views/<model>/<viewname>.blade.php`. For example if `chirps.index` is the view being returned in the controller then `/app/resources/views/chirps/index.blade.php` is run, if `chirps.edit` is run, then change index in the last route to edit (`/app/resources/views/chirps/edit.blade.php`).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+So in abstract:
 
-### Premium Partners
+```mermaid
+flowchart LR
+    User((User)) & a[[routes/web.php]] & b[["app/Http/Controllers/{{model}}Controller.php"]] & c[["/app/Policies/{{model}}Policy.php"]] & d[["/resources/views/{{model}}/{{viewname}}.blade.php"]]
+    User --request--> a --Forwards to --> b
+    b --> e{if gated} -- Yes --> c
+    e -- No -->d
+    c--If has access--> d
+    c--If does not have access --> User
+    d --> User
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Here is a more concrete example of getting `chirps.index` (a GET at `/chirps`):
 
-## Contributing
+```mermaid
+flowchart LR
+    User((User)) & a[[routes/web.php]] & b[["app/Http/Controllers/ChirpController.php"]] & d[["/resources/views/chirps/index.blade.php"]]
+    User --request GET /chirps--> a --Forwards to --> b --If logged in--> d
+    d --> User
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Here is another with a protected view `chirps.edit` (A GET at `/chirps/{chirp}/edit`):
 
-## Code of Conduct
+```mermaid
+flowchart LR
+    User((User)) & a[[routes/web.php]] & b[["app/Http/Controllers/ChirpController.php"]] & c[["/app/Policies/ChirpPolicy.php"]] & d[["/resources/views/chirps/edit.blade.php"]]
+    User --request GET /chirps/{chirp}/edit--> a --Forwards to --> b
+    b --> e{Gated} -- Yes --> c
+    c--If has access--> d
+    c--If does not have access (error) --> User
+    d --> User
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
