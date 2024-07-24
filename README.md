@@ -26,7 +26,7 @@ If a view is being used then that view can be found at `/resources/views/<model>
 So in abstract:
 
 ```mermaid
-flowchart LR
+flowchart TD
     User((User)) & a[[routes/web.php]] & b[["app/Http/Controllers/{{model}}Controller.php"]] & c[["/app/Policies/{{model}}Policy.php"]] & d[["/resources/views/{{model}}/{{viewname}}.blade.php"]]
     User --request--> a --Forwards to --> b
     b --> e{if gated} -- Yes --> c
@@ -39,7 +39,7 @@ flowchart LR
 Here is a more concrete example of getting `chirps.index` (a GET at `/chirps`):
 
 ```mermaid
-flowchart LR
+flowchart TD
     User((User)) & a[[routes/web.php]] & b[["app/Http/Controllers/ChirpController.php"]] & d[["/resources/views/chirps/index.blade.php"]]
     User --request GET /chirps--> a --Forwards to --> b --If logged in--> d
     d --> User
@@ -48,7 +48,7 @@ flowchart LR
 Here is another with a protected view `chirps.edit` (A GET at `/chirps/{chirp}/edit`):
 
 ```mermaid
-flowchart LR
+flowchart TD
     User((User)) & a[[routes/web.php]] & b[["app/Http/Controllers/ChirpController.php"]] & c[["/app/Policies/ChirpPolicy.php"]] & d[["/resources/views/chirps/edit.blade.php"]]
     User --request GET /chirps/{chirp}/edit--> a --Forwards to --> b
     b --> e{Gated} -- Yes --> c
