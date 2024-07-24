@@ -19,7 +19,12 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('chirps', ChirpController::class) // Create route(s) at /chirps
-    ->only(["index", "store"]) // Creates 2 routes; chirps.index is a GET, and chirps.store is POST
+    ->only([     // Creates 4 routes;
+        "index", // chirps.index is a GET        at /chirps
+        "store", // chirps.store is POST         at /chirps
+        'edit',  // chirps.edit is a GET         at /chirps/{chirp}/edit
+        'update' // chirps.update is a PUT/PATCH at /chirps/{chirp}
+        ]) 
     -> middleware(["auth", "verified"]);
 
 require __DIR__.'/auth.php';
