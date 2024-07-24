@@ -2,6 +2,7 @@
 
 This is my personal repo for working on the [laravel bootcamp](https://bootcamp.laravel.com/introduction) (specifically the [blade version](https://bootcamp.laravel.com/blade/installation)).
 
+![](./example.gif)
 
 ## Architecture overview
 
@@ -57,3 +58,6 @@ flowchart TD
     d --> User
 ```
 
+## Helpful commands
+
+- `php artisan migrate:fresh --seed`: Reset DB and rerun seeding
